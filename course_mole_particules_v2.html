@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Course aux pièces d'or — La mole et les particules</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #fff8f0; color: #1a1a1a; padding: 1rem; }
+  .app { max-width: 720px; margin: 0 auto; padding: 1rem 0; }
+  .header { text-align: center; margin-bottom: 1.5rem; }
+  .header h1 { font-size: 22px; font-weight: 700; color: #1a1a1a; }
+  .header p { font-size: 14px; color: #666; margin-top: 6px; }
+
+  .score-bar { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .score-card { background: #fff; border: 1px solid #e0d5c5; border-radius: 10px; padding: 8px 16px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .score-label { font-size: 11px; color: #888; }
+  .score-val { font-size: 22px; font-weight: 700; color: #1a1a1a; }
+
+  details.donnees { background: #fff; border: 1px solid #e0d5c5; border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
+  details.donnees summary { font-size: 14px; font-weight: 600; color: #1a1a1a; cursor: pointer; }
+  .donnees-content { margin-top: 10px; font-size: 13px; color: #555; line-height: 1.9; }
+
+  .monde { margin-bottom: 1.5rem; }
+  .monde-header { display: flex; align-items: center; gap: 10px; margin-bottom: 0.75rem; padding-bottom: 8px; border-bottom: 1px solid #e0d5c5; }
+  .monde-badge { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 6px; }
+  .badge-m1 { background: #dbeafe; color: #1e40af; }
+  .badge-m2 { background: #dcfce7; color: #166534; }
+  .badge-m3 { background: #fef3c7; color: #92400e; }
+  .monde-title { font-size: 15px; font-weight: 600; color: #1a1a1a; }
+  .monde-pts { font-size: 12px; color: #888; margin-left: auto; }
+
+  .exercice { background: #fff; border: 1px solid #e0d5c5; border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .exo-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .exo-num { font-size: 13px; font-weight: 700; color: #1a1a1a; }
+  .coins { display: flex; gap: 4px; align-items: center; }
+  .coin { width: 20px; height: 20px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fde68a, #f59e0b); border: 2px solid #b45309; display: flex; align-items: center; justify-content: center; }
+  .coin-inner { width: 8px; height: 8px; border-radius: 50%; background: #fef3c7; opacity: 0.7; }
+  .exo-pts { font-size: 12px; color: #92400e; background: #fef3c7; padding: 2px 8px; border-radius: 6px; font-weight: 600; }
+  .exo-body { font-size: 14px; color: #1a1a1a; line-height: 1.7; margin-bottom: 12px; }
+  .check-label { margin-left: auto; font-size: 12px; color: #555; display: flex; align-items: center; gap: 5px; cursor: pointer; }
+  .check-label input { width: 16px; height: 16px; cursor: pointer; }
+
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-aide { font-size: 13px; padding: 6px 14px; border-radius: 8px; border: 1.5px solid #2563eb; background: transparent; color: #2563eb; cursor: pointer; font-weight: 600; }
+  .btn-aide:hover { background: #dbeafe; }
+  .btn-corr { font-size: 13px; padding: 6px 14px; border-radius: 8px; border: 1.5px solid #16a34a; background: transparent; color: #16a34a; cursor: pointer; font-weight: 600; }
+  .btn-corr:hover { background: #dcfce7; }
+
+  .panel { margin-top: 12px; border-radius: 8px; padding: 12px 16px; font-size: 13px; line-height: 1.8; display: none; }
+  .panel.aide-panel { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+  .panel.corr-panel { background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; }
+  .panel.visible { display: block; }
+  .panel strong { font-weight: 700; }
+
+  sup { font-size: 10px; vertical-align: super; }
+  sub { font-size: 10px; vertical-align: sub; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <h1>🍄 Course aux pièces d'or</h1>
+    <p>La mole et les particules · Travaille en binôme · Visite les 3 mondes · Accumule un maximum de pièces !</p>
+  </div>
+
+  <div class="score-bar">
+    <div class="score-card"><div class="score-label">Monde 1</div><div class="score-val" id="s1">0 / 4</div></div>
+    <div class="score-card"><div class="score-label">Monde 2</div><div class="score-val" id="s2">0 / 5</div></div>
+    <div class="score-card"><div class="score-label">Monde 3</div><div class="score-val" id="s3">0 / 6</div></div>
+    <div class="score-card"><div class="score-label">🏆 Total</div><div class="score-val" id="stot">0 / 15</div></div>
+  </div>
+
+  <details class="donnees">
+    <summary>📋 Données utiles pour tous les exercices</summary>
+    <div class="donnees-content">
+      <strong>Masses des atomes :</strong><br>
+      m(C) = 1,99×10<sup>−26</sup> kg &nbsp;|&nbsp; m(H) = 1,66×10<sup>−27</sup> kg &nbsp;|&nbsp;
+      m(O) = 2,66×10<sup>−26</sup> kg &nbsp;|&nbsp; m(N) = 2,33×10<sup>−26</sup> kg<br>
+      m<sub>nucléon</sub> = 1,67×10<sup>−27</sup> kg<br><br>
+      <strong>Constante d'Avogadro :</strong> N<sub>A</sub> = 6,02×10<sup>23</sup> entités·mol<sup>−1</sup>
+    </div>
+  </details>
+
+  <!-- MONDE 1 -->
+  <div class="monde">
+    <div class="monde-header">
+      <span class="monde-badge badge-m1">Monde 1</span>
+      <span class="monde-title">Déterminer la masse d'une entité</span>
+      <span class="monde-pts">4 pièces</span>
+    </div>
+
+    <div class="exercice">
+      <div class="exo-header">
+        <span class="exo-num">Exercice 1</span>
+        <div class="coins"><div class="coin"><div class="coin-inner"></div></div></div>
+        <span class="exo-pts">1 pièce</span>
+        <label class="check-label"><input type="checkbox" onchange="updateScore()" data-monde="1" data-pts="1"> Réussi ✓</label>
+      </div>
+      <div class="exo-body">
+        On s'intéresse à un atome de cuivre <sup>63</sup><sub>28</sub>Cu.<br>
+        Déterminer sa masse.
+      </div>
+      <div class="actions">
+        <button class="btn-aide" onclick="toggle('a1')">💡 Aide</button>
+        <button class="btn-corr" onclick="toggle('c1')">✅ Correction</button>
+      </div>
+      <div class="panel aide-panel" id="a1">
+        <strong>Aide :</strong> Le cuivre <sup>63</sup>Cu possède 63 nucléons. La masse d'un atome peut être approchée en multipliant le nombre de nucléons par la masse d'un nucléon.
+      </div>
+      <div class="panel corr-panel" id="c1">
+        <strong>Correction :</strong><br>
+        m(Cu) = 63 × m<sub>nucléon</sub> = 63 × 1,67×10<sup>−27</sup> kg<br>
+        <strong>m(Cu) ≈ 1,05×10<sup>−25</sup> kg</strong>
+      </div>
+    </div>
+
+    <div class="exercice">
+      <div class="exo-header">
+        <span class="exo-num">Exercice 2</span>
+        <div class="coins"><div class="coin"><div class="coin-inner"></div></div></div>
+        <span class="exo-pts">1 pièce</span>
+        <label class="check-label"><input type="checkbox" onchange="updateScore()" data-monde="1" data-pts="1"> Réussi ✓</label>
+      </div>
+      <div class="exo-body">
+        L'ibuprofène a pour formule brute C<sub>13</sub>H<sub>18</sub>O<sub>2</sub>.<br>
+        Calculer la masse d'une molécule d'ibuprofène.
+      </div>
+      <div class="actions">
+        <button class="btn-aide" onclick="toggle('a2')">💡 Aide</button>
+        <button class="btn-corr" onclick="toggle('c2')">✅ Correction</button>
+      </div>
+      <div class="panel aide-panel" id="a2">
+        <strong>Aide :</strong> La masse d'une molécule est la somme des masses de tous ses atomes. Pour C<sub>13</sub>H<sub>18</sub>O<sub>2</sub> : 13 atomes de C, 18 de H et 2 de O.
+      </div>
+      <div class="panel corr-panel" id="c2">
+        <strong>Correction :</strong><br>
+        m = 13×1,99×10<sup>−26</sup> + 18×1,66×10<sup>−27</sup> + 2×2,66×10<sup>−26</sup><br>
+        <strong>m(ibuprofène) ≈ 3,42×10<sup>−25</sup> kg</strong>
+      </div>
+    </div>
+
+    <div class="exercice">
+      <div class="exo-header">
+        <span class="exo-num">Exercice 3</span>
+        <div class="coins">
+          <div class="coin"><div class="coin-inner"></div></div>
+          <div class="coin"><div class="coin-inner"></div></div>
+        </div>
+        <span class="exo-pts">2 pièces</span>
+      </div>
+      <div class="exo-body">
+        L'aspirine (acide acétylsalicylique) est un médicament très répandu. Sa formule développée permet d'identifier : 9 C, 8 H, 4 O.<br><br>
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+          <span>1. Écrire la formule brute de l'acide acétylsalicylique.</span>
+          <label class="check-label" style="margin-left:0; white-space:nowrap;"><input type="checkbox" onchange="updateScore()" data-monde="1" data-pts="1"> Q1 ✓</label>
+        </div>
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-top:6px;">
+          <span>2. Déterminer sa masse en kg.</span>
+          <label class="check-label" style="margin-left:0; white-space:nowrap;"><input type="checkbox" onchange="updateScore()" data-monde="1" data-pts="1"> Q2 ✓</label>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn-aide" onclick="toggle('a3')">💡 Aide</button>
+        <button class="btn-corr" onclick="toggle('c3')">✅ Correction</button>
+      </div>
+      <div class="panel aide-panel" id="a3">
+        <strong>Aide :</strong> Compte chaque type d'atome dans la formule développée pour écrire la formule brute C<sub>x</sub>H<sub>y</sub>O<sub>z</sub>. Pour la masse, procède comme à l'exercice 2.
+      </div>
+      <div class="panel corr-panel" id="c3">
+        <strong>Correction :</strong><br>
+        1. Formule brute : <strong>C<sub>9</sub>H<sub>8</sub>O<sub>4</sub></strong><br>
+        2. m = 9×1,99×10<sup>−26</sup> + 8×1,66×10<sup>−27</sup> + 4×2,66×10<sup>−26</sup><br>
+        <strong>m(aspirine) ≈ 3,0×10<sup>−25</sup> kg</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- MONDE 2 -->
+  <div class="monde">
+    <div class="monde-header">
+      <span class="monde-badge badge-m2">Monde 2</span>
+      <span class="monde-title">Déterminer le nombre d'entités</span>
+      <span class="monde-pts">5 pièces</span>
+    </div>
+
+    <div class="exercice">
+      <div class="exo-header">
+        <span class="exo-num">Exercice 4</span>
+        <div class="coins"><div class="coin"><div class="coin-inner"></div></div></div>
+        <span class="exo-pts">1 pièce</span>
+        <label class="check-label"><input type="checkbox" onchange="updateScore()" data-monde="2" data-pts="1"> Réussi ✓</label>
+      </div>
+      <div class="exo-body">
+        Un clou en fer a une masse m = 3,0 g. La boîte contient 5,0 kg de clous.<br>
+        1. Déterminer le nombre approximatif de clous dans la boîte.<br>
+        2. Expliquer en quoi cette situation ressemble au comptage des atomes par les chimistes.
+      </div>
+      <div class="actions">
+        <button class="btn-aide" onclick="toggle('a4')">💡 Aide</button>
+        <button class="btn-corr" onclick="toggle('c4')">✅ Correction</button>
+      </div>
+      <div class="panel aide-panel" id="a4">
+        <strong>Aide :</strong> Divise la masse totale par la masse d'un clou. Pense à l'analogie : les chimistes « comptent » les atomes en pesant.
+      </div>
+      <div class="panel corr-panel" id="c4">
+        <strong>Correction :</strong><br>
+        1. N = 5 000 g ÷ 3,0 g ≈ <strong>1 667 clous</strong><br>
+        2. Les chimistes divisent la masse totale d'un échantillon par la masse d'un atome → même principe qu'avec les clous.
+      </div>
+    </div>
+
+    <div class="exercice">
+      <div class="exo-header">
+        <span class="exo-num">Exercice 5</span>
+        <div class="coins"><div class="coin"><div class="coin-inner"></div></div></div>
+        <span class="exo-pts">1 pièce</span>
+        <label class="check-label"><input type="checkbox" onchange="updateScore()" data-monde="2" data-pts="1"> Réussi ✓</label>
+      </div>
+      <div class="exo-body">
+        Une bassine en cuivre a une masse m = 1,05 kg.<br>
+        Sachant que m(Cu) = 1,06×10<sup>−25</sup> kg, déterminer le nombre d'atomes de cuivre composant la bassine.
+      </div>
+      <div class="actions">
+        <button class="btn-aide" onclick="toggle('a5')">💡 Aide</button>
+        <button class="btn-corr" onclick="toggle('c5')">✅ Correction</button>
+      </div>
+      <div class="panel aide-panel" id="a5">
+        <strong>Aide :</strong> N = masse totale ÷ masse d'un atome. Vérifie que les unités sont cohérentes.
+      </div>
+      <div class="panel corr-panel" id="c5">
+        <strong>Correction :</strong><br>
+        N = 1,05 ÷ 1,06×10<sup>−25</sup><br>
+        <strong>N ≈ 9,9×10<sup>24</sup> atomes</strong>
+      </div>
+    </div>
+
+    <div class="exercice">
+      <div class="exo-header">
+        <span class="exo-num">Exercice 6</span>
+        <div class="coins"><div class="coin"><div class="coin-inner"></div></div></div>
+        <span class="exo-pts">1 pièce</span>
+        <label class="check-label"><input type="checkbox" onchange="updateScore()" data-monde="2" data-pts="1"> Réussi ✓</label>
+      </div>
+      <div class="exo-body">
+        Un comprimé contient n = 6,6×10<sup>−3</sup> mol de paracétamol.<br>
+        Exprimer puis calculer le nombre de molécules N de paracétamol contenues dans un comprimé.
+      </div>
+      <div class="actions">
+        <button class="btn-aide" onclick="toggle('a6')">💡 Aide</button>
+        <button class="btn-corr" onclick="toggle('c6')">✅ Correction</button>
+      </div>
+      <div class="panel aide-panel" id="a6">
+        <strong>Aide :</strong> Relation à utiliser : N = n × N<sub>A</sub>
+      </div>
+      <div class="panel corr-panel" id="c6">
+        <strong>Correction :</strong><br>
+        N = n × N<sub>A</sub> = 6,6×10<sup>−3</sup> × 6,02×10<sup>23</sup><br>
+        <strong>N ≈ 3,97×10<sup>21</sup> molécules</strong>
+      </div>
+    </div>
+
+    <div class="exercice">
+      <div class="exo-header">
+        <span class="exo-num">Exercice 7</span>
+        <div class="coins">
+          <div class="coin"><div class="coin-inner"></div></div>
+          <div class="coin"><div class="coin-inner"></div></div>
+        </div>
+        <span class="exo-pts">2 pièces</span>
+      </div>
+      <div class="exo-body">
+        Des projectiles en plomb utilisés en biathlon ont une masse m = 2,5 g.<br>
+        Donnée : m(Pb) = 3,44×10<sup>−22</sup> g<br><br>
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+          <span>1. Vérifier que le projectile est constitué de N = 7,3×10<sup>21</sup> atomes de plomb.</span>
+          <label class="check-label" style="margin-left:0; white-space:nowrap;"><input type="checkbox" onchange="updateScore()" data-monde="2" data-pts="1"> Q1 ✓</label>
+        </div>
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-top:6px;">
+          <span>2. Calculer la quantité de matière n de plomb contenue dans un projectile.</span>
+          <label class="check-label" style="margin-left:0; white-space:nowrap;"><input type="checkbox" onchange="updateScore()" data-monde="2" data-pts="1"> Q2 ✓</label>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn-aide" onclick="toggle('a7')">💡 Aide</button>
+        <button class="btn-corr" onclick="toggle('c7')">✅ Correction</button>
+      </div>
+      <div class="panel aide-panel" id="a7">
+        <strong>Aide :</strong><br>
+        1. Calcule N = m ÷ m(Pb) et compare au résultat donné.<br>
+        2. n = N ÷ N<sub>A</sub>. Attention aux unités !
+      </div>
+      <div class="panel corr-panel" id="c7">
+        <strong>Correction :</strong><br>
+        1. N = 2,5 ÷ 3,44×10<sup>−22</sup> = 7,27×10<sup>21</sup> ≈ <strong>7,3×10<sup>21</sup> atomes ✓</strong><br>
+        2. n = N ÷ N<sub>A</sub> = 7,3×10<sup>21</sup> ÷ 6,02×10<sup>23</sup><br>
+        <strong>n ≈ 1,21×10<sup>−2</sup> mol</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- MONDE 3 -->
+  <div class="monde">
+    <div class="monde-header">
+      <span class="monde-badge badge-m3">Monde 3</span>
+      <span class="monde-title">Exercices de synthèse</span>
+      <span class="monde-pts">6 pièces</span>
+    </div>
+
+    <div class="exercice">
+      <div class="exo-header">
+        <span class="exo-num">Exercice 8</span>
+        <div class="coins">
+          <div class="coin"><div class="coin-inner"></div></div>
+          <div class="coin"><div class="coin-inner"></div></div>
+          <div class="coin"><div class="coin-inner"></div></div>
+        </div>
+        <span class="exo-pts">3 pièces</span>
+        <label class="check-label"><input type="checkbox" onchange="updateScore()" data-monde="3" data-pts="3"> Réussi ✓</label>
+      </div>
+      <div class="exo-body">
+        Le dioxyde de soufre SO<sub>2</sub> est un polluant atmosphérique. En 2017, sa concentration était de 2,0 μg par mètre cube d'air.<br>
+        Donnée : m(S) = 5,33×10<sup>−26</sup> kg<br>
+        1. Calculer la masse d'une molécule de dioxyde de soufre.<br>
+        2. Calculer le nombre N de molécules de SO<sub>2</sub> dans un mètre cube d'air.<br>
+        3. En déduire la quantité de matière correspondante.
+      </div>
+      <div class="actions">
+        <button class="btn-aide" onclick="toggle('a8')">💡 Aide</button>
+        <button class="btn-corr" onclick="toggle('c8')">✅ Correction</button>
+      </div>
+      <div class="panel aide-panel" id="a8">
+        <strong>Aide :</strong><br>
+        1. SO<sub>2</sub> contient 1 atome de S et 2 atomes de O. Utilise les masses des données générales.<br>
+        2. Convertis 2,0 μg en kg (1 μg = 10<sup>−9</sup> kg), puis N = m<sub>totale</sub> ÷ m(molécule).<br>
+        3. n = N ÷ N<sub>A</sub>
+      </div>
+      <div class="panel corr-panel" id="c8">
+        <strong>Correction :</strong><br>
+        1. m(SO<sub>2</sub>) = m(S) + 2×m(O) = 5,33×10<sup>−26</sup> + 2×2,66×10<sup>−26</sup><br>
+        <strong>m(SO<sub>2</sub>) = 1,065×10<sup>−25</sup> kg</strong><br><br>
+        2. 2,0 μg = 2,0×10<sup>−9</sup> kg<br>
+        N = 2,0×10<sup>−9</sup> ÷ 1,065×10<sup>−25</sup><br>
+        <strong>N ≈ 1,88×10<sup>16</sup> molécules</strong><br><br>
+        3. n = N ÷ N<sub>A</sub> = 1,88×10<sup>16</sup> ÷ 6,02×10<sup>23</sup><br>
+        <strong>n ≈ 3,1×10<sup>−8</sup> mol</strong>
+      </div>
+    </div>
+
+    <div class="exercice">
+      <div class="exo-header">
+        <span class="exo-num">Exercice 9</span>
+        <div class="coins">
+          <div class="coin"><div class="coin-inner"></div></div>
+          <div class="coin"><div class="coin-inner"></div></div>
+          <div class="coin"><div class="coin-inner"></div></div>
+        </div>
+        <span class="exo-pts">3 pièces</span>
+        <label class="check-label"><input type="checkbox" onchange="updateScore()" data-monde="3" data-pts="3"> Réussi ✓</label>
+      </div>
+      <div class="exo-body">
+        La caféine, de formule C<sub>8</sub>H<sub>10</sub>N<sub>4</sub>O<sub>2</sub>, est un stimulant présent dans le café, le thé et le chocolat.<br>
+        Il est recommandé de ne pas en consommer plus de 300 mg par jour. Une tasse de café contient 80 mg de caféine.<br>
+        1. Calculer la masse d'une molécule de caféine.<br>
+        2. Déterminer le nombre de molécules de caféine dans une tasse de café.<br>
+        3. Calculer la quantité de matière de caféine dans une tasse.<br>
+        4. Calculer le nombre de tasses maximum par jour en respectant la recommandation.
+      </div>
+      <div class="actions">
+        <button class="btn-aide" onclick="toggle('a9')">💡 Aide</button>
+        <button class="btn-corr" onclick="toggle('c9')">✅ Correction</button>
+      </div>
+      <div class="panel aide-panel" id="a9">
+        <strong>Aide :</strong><br>
+        1. Utilise les masses de C, H, N et O des données générales.<br>
+        2. Convertis 80 mg en kg (1 mg = 10<sup>−6</sup> kg), puis N = m ÷ m(molécule).<br>
+        3. n = N ÷ N<sub>A</sub><br>
+        4. Divise la dose maximale (300 mg) par la dose par tasse (80 mg).
+      </div>
+      <div class="panel corr-panel" id="c9">
+        <strong>Correction :</strong><br>
+        1. m(caféine) = 8×1,99×10<sup>−26</sup> + 10×1,66×10<sup>−27</sup> + 4×2,33×10<sup>−26</sup> + 2×2,66×10<sup>−26</sup><br>
+        <strong>m(caféine) ≈ 3,27×10<sup>−25</sup> kg</strong><br><br>
+        2. 80 mg = 8,0×10<sup>−5</sup> kg<br>
+        N = 8,0×10<sup>−5</sup> ÷ 3,27×10<sup>−25</sup><br>
+        <strong>N ≈ 2,45×10<sup>20</sup> molécules</strong><br><br>
+        3. n = 2,45×10<sup>20</sup> ÷ 6,02×10<sup>23</sup><br>
+        <strong>n ≈ 4,07×10<sup>−4</sup> mol</strong><br><br>
+        4. 300 ÷ 80 = 3,75 → <strong>3 tasses maximum par jour</strong>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function toggle(id) {
+  document.getElementById(id).classList.toggle('visible');
+}
+function updateScore() {
+  const totals = {1: 0, 2: 0, 3: 0};
+  document.querySelectorAll('input[type=checkbox]').forEach(function(cb) {
+    if (cb.checked) totals[cb.dataset.monde] += parseInt(cb.dataset.pts);
+  });
+  document.getElementById('s1').textContent = totals[1] + ' / 4';
+  document.getElementById('s2').textContent = totals[2] + ' / 5';
+  document.getElementById('s3').textContent = totals[3] + ' / 6';
+  document.getElementById('stot').textContent = (totals[1]+totals[2]+totals[3]) + ' / 15';
+}
+</script>
+</body>
+</html>
